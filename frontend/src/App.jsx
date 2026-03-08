@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Public pages
+import Home from './pages/public/Home.jsx';
+import Projects from './pages/public/Projects.jsx';
+import ProjectCaseStudy from './pages/public/ProjectCaseStudy.jsx';
+import About from './pages/public/About.jsx';
+import Contact from './pages/public/Contact.jsx';
 
+// Admin pages
+import AdminLogin from './pages/admin/AdminLogin.jsx';
+import Dashboard from './pages/admin/Dashboard.jsx';
+import ManageProjects from './pages/admin/ManageProjects.jsx';
+import ManageSkills from './pages/admin/ManageSkills.jsx';
+import ManageAbout from './pages/admin/ManageAbout.jsx';
+import ManageContact from './pages/admin/ManageContact.jsx';
+import ManageResume from './pages/admin/ManageResume.jsx';
+import Analytics from './pages/admin/Analytics.jsx';
+
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public */}
+          <Route path="/" element={<Home />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:slug" element={<ProjectCaseStudy />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
 
-export default App
+          {/* Admin - login is public */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+
+          {/* Admin - protected */}
+          <Route path="/admin" element={<ProtectedRoute />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="projects" element={<ManageProjects />} />
+            <Route path="skills" element={<ManageSkills />} />
+            <Route path="about" element={<ManageAbout />} />
+            <Route path="contact" element={<ManageContact />} />
+            <Route path="resume" element={<ManageResume />} />
+            <Route path="analytics" element={<Analytics />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
