@@ -2,12 +2,34 @@ import { useState } from 'react';
 import PublicLayout from '../../layouts/PublicLayout.jsx';
 import { messageService } from '../../services/messageService.js';
 
+const inputStyle = {
+  width: '100%',
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.1)',
+  borderRadius: '10px',
+  padding: '11px 14px',
+  color: '#f1f5f9',
+  fontSize: '14px',
+  outline: 'none',
+  boxSizing: 'border-box',
+  fontFamily: 'Inter, sans-serif',
+  transition: 'border-color 0.2s',
+};
+
+const labelStyle = {
+  display: 'block',
+  color: '#94a3b8',
+  fontSize: '12px',
+  fontWeight: 500,
+  marginBottom: '6px',
+};
+
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', body: '' });
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,80 +47,155 @@ export default function Contact() {
 
   return (
     <PublicLayout>
-      <div className="max-w-5xl mx-auto px-6 py-16">
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
-          {/* Left — info */}
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-3">Let's work together</h1>
-            <p className="text-gray-400 leading-relaxed mb-10">
-              Have a project in mind or want to chat about opportunities? I'm always open to
-              interesting conversations.
-            </p>
+      <div
+        style={{
+          maxWidth: '1000px',
+          margin: '0 auto',
+          padding: '48px 40px',
+          fontFamily: 'Inter, sans-serif',
+        }}
+      >
+        {/* Header */}
+        <div style={{ marginBottom: '48px' }}>
+          <h1
+            style={{
+              color: '#f1f5f9',
+              fontSize: '32px',
+              fontWeight: 800,
+              margin: '0 0 8px',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            Let's work together
+          </h1>
+          <p style={{ color: '#64748b', fontSize: '15px', margin: 0 }}>
+            Have a project in mind? I'd love to hear about it.
+          </p>
+        </div>
 
-            <div className="space-y-5">
-              {[
-                {
-                  label: 'Response time',
-                  value: 'Within 24 hours',
-                  icon: (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  ),
-                },
-                {
-                  label: 'Open to',
-                  value: 'Full-time & Freelance',
-                  icon: (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                  ),
-                },
-              ].map(({ label, value, icon }) => (
-                <div key={label} className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/15 flex items-center justify-center text-blue-400">
-                    {icon}
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600 uppercase tracking-wide">{label}</p>
-                    <p className="text-sm text-gray-300">{value}</p>
-                  </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))',
+            gap: '40px',
+            alignItems: 'start',
+          }}
+        >
+          {/* ── Info column ── */}
+          <div>
+            {/* Info cards */}
+            {[
+              { emoji: '⚡', title: 'Quick Response', desc: 'I reply within 24 hours' },
+              { emoji: '💼', title: 'Open to Work', desc: 'Freelance & Full-time roles' },
+              { emoji: '🌍', title: 'Remote Friendly', desc: 'Available worldwide' },
+            ].map(({ emoji, title, desc }) => (
+              <div
+                key={title}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '14px',
+                  marginBottom: '20px',
+                }}
+              >
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '12px',
+                    background: 'rgba(99,102,241,0.1)',
+                    border: '1px solid rgba(99,102,241,0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '18px',
+                    flexShrink: 0,
+                  }}
+                >
+                  {emoji}
                 </div>
-              ))}
+                <div>
+                  <p
+                    style={{
+                      color: '#f1f5f9',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      margin: '0 0 3px',
+                    }}
+                  >
+                    {title}
+                  </p>
+                  <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>{desc}</p>
+                </div>
+              </div>
+            ))}
+
+            {/* Decorative card */}
+            <div
+              style={{
+                background: '#1a1d27',
+                border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: '16px',
+                padding: '20px',
+                marginTop: '12px',
+              }}
+            >
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}
+              >
+                <div
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: '#4ade80',
+                  }}
+                />
+                <span style={{ color: '#4ade80', fontSize: '12px', fontWeight: 600 }}>
+                  Currently available
+                </span>
+              </div>
+              <p style={{ color: '#94a3b8', fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
+                I'm open to new opportunities and exciting projects. Don't hesitate to reach out!
+              </p>
             </div>
           </div>
 
-          {/* Right — form */}
-          <div className="bg-[#111] border border-white/6 rounded-2xl p-6 md:p-8">
+          {/* ── Form column ── */}
+          <div
+            style={{
+              background: '#1a1d27',
+              border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '20px',
+              padding: '28px',
+            }}
+          >
             {status === 'success' && (
-              <div className="mb-5 flex items-start gap-3 p-4 bg-green-500/8 border border-green-500/20 rounded-xl">
-                <svg
-                  className="w-5 h-5 text-green-400 shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+              <div
+                style={{
+                  background: 'rgba(74,222,128,0.08)',
+                  border: '1px solid rgba(74,222,128,0.2)',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
+                  marginBottom: '20px',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                }}
+              >
+                <span style={{ fontSize: '16px' }}>✓</span>
                 <div>
-                  <p className="text-green-400 font-medium text-sm">Message sent!</p>
-                  <p className="text-green-500/70 text-xs mt-0.5">
+                  <p
+                    style={{
+                      color: '#4ade80',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      margin: '0 0 2px',
+                    }}
+                  >
+                    Message sent!
+                  </p>
+                  <p style={{ color: '#4ade80', fontSize: '12px', margin: 0, opacity: 0.7 }}>
                     I'll get back to you within 24 hours.
                   </p>
                 </div>
@@ -106,28 +203,33 @@ export default function Contact() {
             )}
 
             {status === 'error' && (
-              <div className="mb-5 flex items-start gap-3 p-4 bg-red-500/8 border border-red-500/20 rounded-xl">
-                <svg
-                  className="w-5 h-5 text-red-400 shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <p className="text-red-400 text-sm">Something went wrong. Please try again.</p>
+              <div
+                style={{
+                  background: 'rgba(239,68,68,0.08)',
+                  border: '1px solid rgba(239,68,68,0.2)',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
+                  marginBottom: '20px',
+                }}
+              >
+                <p style={{ color: '#f87171', fontSize: '13px', margin: 0 }}>
+                  ⚠️ Something went wrong. Please try again.
+                </p>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid sm:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit}>
+              {/* Name + Email */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '14px',
+                  marginBottom: '14px',
+                }}
+              >
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1.5">Name *</label>
+                  <label style={labelStyle}>Name *</label>
                   <input
                     type="text"
                     name="name"
@@ -135,35 +237,45 @@ export default function Contact() {
                     onChange={handleChange}
                     required
                     placeholder="John Doe"
-                    className="w-full bg-white/3 border border-white/8 hover:border-white/15 focus:border-blue-500/50 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-700 outline-none transition-all"
+                    style={inputStyle}
+                    onFocus={(e) => (e.target.style.borderColor = '#6366f1')}
+                    onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1.5">Email *</label>
+                  <label style={labelStyle}>Email *</label>
                   <input
                     type="email"
                     name="email"
                     value={form.email}
                     onChange={handleChange}
                     required
-                    placeholder="john@example.com"
-                    className="w-full bg-white/3 border border-white/8 hover:border-white/15 focus:border-blue-500/50 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-700 outline-none transition-all"
+                    placeholder="you@example.com"
+                    style={inputStyle}
+                    onFocus={(e) => (e.target.style.borderColor = '#6366f1')}
+                    onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
                   />
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1.5">Subject</label>
+
+              {/* Subject */}
+              <div style={{ marginBottom: '14px' }}>
+                <label style={labelStyle}>Subject</label>
                 <input
                   type="text"
                   name="subject"
                   value={form.subject}
                   onChange={handleChange}
                   placeholder="Project inquiry"
-                  className="w-full bg-white/3 border border-white/8 hover:border-white/15 focus:border-blue-500/50 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-700 outline-none transition-all"
+                  style={inputStyle}
+                  onFocus={(e) => (e.target.style.borderColor = '#6366f1')}
+                  onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
                 />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1.5">Message *</label>
+
+              {/* Message */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={labelStyle}>Message *</label>
                 <textarea
                   name="body"
                   value={form.body}
@@ -171,32 +283,31 @@ export default function Contact() {
                   required
                   rows={5}
                   placeholder="Tell me about your project..."
-                  className="w-full bg-white/3 border border-white/8 hover:border-white/15 focus:border-blue-500/50 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-700 outline-none transition-all resize-none"
+                  style={{ ...inputStyle, resize: 'vertical' }}
+                  onFocus={(e) => (e.target.style.borderColor = '#6366f1')}
+                  onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
                 />
               </div>
+
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/20 flex items-center justify-center gap-2"
+                style={{
+                  width: '100%',
+                  padding: '13px',
+                  background: loading
+                    ? 'rgba(99,102,241,0.5)'
+                    : 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontFamily: 'Inter, sans-serif',
+                }}
               >
-                {loading && (
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                )}
-                {loading ? 'Sending...' : 'Send Message'}
+                {loading ? 'Sending...' : 'Send Message →'}
               </button>
             </form>
           </div>

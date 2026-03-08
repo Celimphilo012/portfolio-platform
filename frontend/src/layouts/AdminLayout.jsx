@@ -3,247 +3,431 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const navItems = [
-  {
-    to: '/admin/dashboard',
-    label: 'Dashboard',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-        />
-      </svg>
-    ),
-  },
-  {
-    to: '/admin/projects',
-    label: 'Projects',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-        />
-      </svg>
-    ),
-  },
-  {
-    to: '/admin/skills',
-    label: 'Skills',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-        />
-      </svg>
-    ),
-  },
-  {
-    to: '/admin/about',
-    label: 'About',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-        />
-      </svg>
-    ),
-  },
-  {
-    to: '/admin/contact',
-    label: 'Messages',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-        />
-      </svg>
-    ),
-  },
-  {
-    to: '/admin/resume',
-    label: 'Resume',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-        />
-      </svg>
-    ),
-  },
-  {
-    to: '/admin/analytics',
-    label: 'Analytics',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-        />
-      </svg>
-    ),
-  },
+  { to: '/admin/dashboard', label: 'Dashboard', icon: '⊞' },
+  { to: '/admin/projects', label: 'Projects', icon: '◈' },
+  { to: '/admin/skills', label: 'Skills', icon: '◉' },
+  { to: '/admin/about', label: 'About', icon: '◎' },
+  { to: '/admin/contact', label: 'Messages', icon: '✉' },
+  { to: '/admin/resume', label: 'Resume', icon: '◱' },
+  { to: '/admin/analytics', label: 'Analytics', icon: '◈' },
 ];
+
+const S = {
+  sidebar: {
+    width: '220px',
+    background: '#12141c',
+    borderRight: '1px solid rgba(255,255,255,0.07)',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100vh',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    fontFamily: 'Inter, sans-serif',
+    zIndex: 40,
+  },
+  brandArea: {
+    padding: '20px 16px 16px',
+    borderBottom: '1px solid rgba(255,255,255,0.07)',
+  },
+  brandRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    marginBottom: '16px',
+  },
+  logoBox: {
+    width: '32px',
+    height: '32px',
+    borderRadius: '10px',
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#fff',
+    fontSize: '16px',
+    flexShrink: 0,
+  },
+  userCard: {
+    background: 'rgba(255,255,255,0.04)',
+    borderRadius: '12px',
+    padding: '10px 12px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+  avatar: {
+    width: '34px',
+    height: '34px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#fff',
+    fontSize: '13px',
+    fontWeight: 700,
+    flexShrink: 0,
+  },
+  navArea: {
+    flex: 1,
+    padding: '12px',
+    overflowY: 'auto',
+  },
+  navLabel: {
+    color: '#334155',
+    fontSize: '10px',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    padding: '0 10px',
+    marginBottom: '6px',
+    display: 'block',
+  },
+  bottomArea: {
+    padding: '12px',
+    borderTop: '1px solid rgba(255,255,255,0.07)',
+  },
+};
+
+function NavLink({ to, label, icon, active, onClick }) {
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        padding: '9px 10px',
+        borderRadius: '10px',
+        marginBottom: '2px',
+        fontSize: '13px',
+        fontWeight: 500,
+        textDecoration: 'none',
+        transition: 'all 0.15s',
+        background: active ? 'rgba(99,102,241,0.15)' : 'transparent',
+        color: active ? '#818cf8' : '#64748b',
+        border: active ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent',
+      }}
+    >
+      <span style={{ fontSize: '14px', width: '18px', textAlign: 'center' }}>{icon}</span>
+      {label}
+    </Link>
+  );
+}
+
+function BottomLink({ onClick, children, danger }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        padding: '9px 10px',
+        borderRadius: '10px',
+        marginBottom: '2px',
+        fontSize: '13px',
+        fontWeight: 500,
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        color: danger ? '#f87171' : '#64748b',
+        textAlign: 'left',
+        fontFamily: 'Inter, sans-serif',
+      }}
+    >
+      {children}
+    </button>
+  );
+}
 
 export default function AdminLayout({ children }) {
   const { pathname } = useLocation();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/admin/login');
   };
+  const initials = user?.email?.[0]?.toUpperCase() || 'A';
 
-  const SidebarContent = () => (
-    <>
-      <div className="p-5 border-b border-white/5">
-        <Link to="/" className="flex items-center gap-2 mb-4">
-          <span className="w-6 h-6 rounded-md bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
-            P
-          </span>
-          <span className="text-xs text-gray-500 uppercase tracking-widest">Portfolio CMS</span>
-        </Link>
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 text-sm font-semibold">
-            {user?.email?.[0]?.toUpperCase()}
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs text-white font-medium truncate">{user?.email}</p>
-            <p className="text-xs text-gray-600">Administrator</p>
-          </div>
-        </div>
-      </div>
+  const sidebarStyle = {
+    ...S.sidebar,
+    transform: open ? 'translateX(0)' : 'translateX(-100%)',
+  };
 
-      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ to, label, icon }) => (
-          <Link
-            key={to}
-            to={to}
-            onClick={() => setSidebarOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-              pathname === to
-                ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
-                : 'text-gray-500 hover:text-gray-200 hover:bg-white/5'
-            }`}
-          >
-            {icon}
-            {label}
-          </Link>
-        ))}
-      </nav>
-
-      <div className="p-3 border-t border-white/5">
-        <Link
-          to="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-all mb-1"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-            />
-          </svg>
-          View Site
-        </Link>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:text-red-400 hover:bg-red-500/5 transition-all"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-            />
-          </svg>
-          Sign out
-        </button>
-      </div>
-    </>
-  );
+  const desktopSidebarStyle = {
+    ...S.sidebar,
+    transform: 'translateX(0)',
+  };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-100">
-      {/* Mobile top bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 h-14 bg-[#111]/95 backdrop-blur border-b border-white/5 flex items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <span className="w-6 h-6 rounded-md bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
-            P
-          </span>
-          <span className="text-sm font-medium text-white">Admin</span>
-        </div>
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors"
-        >
-          <svg
-            className="w-5 h-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            {sidebarOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
-        </button>
-      </div>
-
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#0f1117',
+        fontFamily: 'Inter, sans-serif',
+        display: 'flex',
+      }}
+    >
       {/* Mobile overlay */}
-      {sidebarOpen && (
+      {open && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => setOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 30 }}
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — desktop always visible */}
       <aside
-        className={`fixed top-0 left-0 h-full w-56 bg-[#111] border-r border-white/5 flex flex-col z-50 transition-transform duration-300
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+        style={{ width: '220px', flexShrink: 0, position: 'relative' }}
+        className="hidden lg:block"
       >
-        <SidebarContent />
+        <div style={desktopSidebarStyle}>
+          {/* Brand */}
+          <div style={S.brandArea}>
+            <div style={S.brandRow}>
+              <div style={S.logoBox}>P</div>
+              <div>
+                <div style={{ color: '#f1f5f9', fontSize: '13px', fontWeight: 600 }}>Portfolio</div>
+                <div style={{ color: '#475569', fontSize: '11px' }}>Pro Workspace</div>
+              </div>
+            </div>
+            {/* User card */}
+            <div style={S.userCard}>
+              <div style={S.avatar}>{initials}</div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div
+                  style={{
+                    color: '#f1f5f9',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {user?.email}
+                </div>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}
+                >
+                  <span
+                    style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      background: '#4ade80',
+                      display: 'inline-block',
+                    }}
+                  />
+                  <span style={{ color: '#64748b', fontSize: '11px' }}>Admin</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Nav */}
+          <div style={S.navArea}>
+            <span style={S.navLabel}>Menu</span>
+            {navItems.map(({ to, label, icon }) => (
+              <NavLink key={to} to={to} label={label} icon={icon} active={pathname === to} />
+            ))}
+          </div>
+
+          {/* Bottom */}
+          <div style={S.bottomArea}>
+            <Link
+              to="/"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '9px 10px',
+                borderRadius: '10px',
+                marginBottom: '2px',
+                fontSize: '13px',
+                fontWeight: 500,
+                textDecoration: 'none',
+                color: '#64748b',
+              }}
+            >
+              <span>↗</span> View Site
+            </Link>
+            <BottomLink onClick={handleLogout} danger>
+              <span>→</span> Sign out
+            </BottomLink>
+          </div>
+        </div>
+      </aside>
+
+      {/* Mobile sidebar */}
+      <aside
+        className="lg:hidden"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: 40,
+          height: '100vh',
+          width: '220px',
+          transform: open ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s',
+          background: '#12141c',
+          borderRight: '1px solid rgba(255,255,255,0.07)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <div style={S.brandArea}>
+          <div style={{ ...S.brandRow, justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={S.logoBox}>P</div>
+              <div style={{ color: '#f1f5f9', fontSize: '13px', fontWeight: 600 }}>Portfolio</div>
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#64748b',
+                fontSize: '18px',
+                cursor: 'pointer',
+                padding: '4px',
+              }}
+            >
+              ✕
+            </button>
+          </div>
+          <div style={S.userCard}>
+            <div style={S.avatar}>{initials}</div>
+            <div style={{ minWidth: 0 }}>
+              <div
+                style={{
+                  color: '#f1f5f9',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {user?.email}
+              </div>
+              <div style={{ color: '#64748b', fontSize: '11px', marginTop: '2px' }}>Admin</div>
+            </div>
+          </div>
+        </div>
+        <div style={S.navArea}>
+          <span style={S.navLabel}>Menu</span>
+          {navItems.map(({ to, label, icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              label={label}
+              icon={icon}
+              active={pathname === to}
+              onClick={() => setOpen(false)}
+            />
+          ))}
+        </div>
+        <div style={S.bottomArea}>
+          <Link
+            to="/"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '9px 10px',
+              borderRadius: '10px',
+              fontSize: '13px',
+              color: '#64748b',
+              textDecoration: 'none',
+            }}
+          >
+            ↗ View Site
+          </Link>
+          <BottomLink onClick={handleLogout} danger>
+            → Sign out
+          </BottomLink>
+        </div>
       </aside>
 
       {/* Main */}
-      <main className="lg:ml-56 pt-14 lg:pt-0 min-h-screen">
-        <div className="max-w-5xl mx-auto p-6 lg:p-8">{children}</div>
-      </main>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        {/* Topbar */}
+        <header
+          style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 20,
+            height: '56px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0 24px',
+            background: 'rgba(15,17,23,0.95)',
+            borderBottom: '1px solid rgba(255,255,255,0.07)',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setOpen(true)}
+            className="lg:hidden"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#64748b',
+              fontSize: '20px',
+              padding: '4px',
+              lineHeight: 1,
+            }}
+          >
+            ☰
+          </button>
+
+          {/* Page title */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span
+              style={{
+                color: '#f1f5f9',
+                fontSize: '14px',
+                fontWeight: 600,
+                textTransform: 'capitalize',
+              }}
+            >
+              {pathname.split('/').pop()}
+            </span>
+            <span
+              style={{
+                fontSize: '11px',
+                padding: '2px 8px',
+                borderRadius: '20px',
+                background: 'rgba(34,197,94,0.1)',
+                color: '#4ade80',
+                border: '1px solid rgba(34,197,94,0.2)',
+              }}
+            >
+              ● Live
+            </span>
+          </div>
+
+          {/* Avatar */}
+          <div style={{ ...S.avatar, width: '32px', height: '32px', fontSize: '12px' }}>
+            {initials}
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main style={{ flex: 1, padding: '24px' }}>{children}</main>
+      </div>
     </div>
   );
 }

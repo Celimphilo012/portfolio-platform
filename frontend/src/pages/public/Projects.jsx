@@ -4,6 +4,48 @@ import PublicLayout from '../../layouts/PublicLayout.jsx';
 import { projectService } from '../../services/projectService.js';
 import { analyticsService } from '../../services/analyticsService.js';
 
+function SkeletonCard() {
+  return (
+    <div
+      style={{
+        background: '#1a1d27',
+        border: '1px solid rgba(255,255,255,0.07)',
+        borderRadius: '16px',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ height: '180px', background: 'rgba(255,255,255,0.04)' }} />
+      <div style={{ padding: '16px' }}>
+        <div
+          style={{
+            height: '14px',
+            background: 'rgba(255,255,255,0.06)',
+            borderRadius: '6px',
+            width: '60%',
+            marginBottom: '10px',
+          }}
+        />
+        <div
+          style={{
+            height: '10px',
+            background: 'rgba(255,255,255,0.04)',
+            borderRadius: '4px',
+            marginBottom: '6px',
+          }}
+        />
+        <div
+          style={{
+            height: '10px',
+            background: 'rgba(255,255,255,0.04)',
+            borderRadius: '4px',
+            width: '80%',
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,118 +59,196 @@ export default function Projects() {
       .finally(() => setLoading(false));
   }, []);
 
-  const allTech = ['All', ...new Set(projects.flatMap((p) => p.technologies || []))].slice(0, 8);
+  const allTech = ['All', ...new Set(projects.flatMap((p) => p.technologies || []))].slice(0, 10);
   const filtered =
-    filter === 'All'
-      ? projects
-      : projects.filter((p) => p.technologies && p.technologies.includes(filter));
+    filter === 'All' ? projects : projects.filter((p) => (p.technologies || []).includes(filter));
 
   return (
     <PublicLayout>
-      <div className="max-w-6xl mx-auto px-6 py-16">
+      <div
+        style={{
+          maxWidth: '1100px',
+          margin: '0 auto',
+          padding: '48px 40px',
+          fontFamily: 'Inter, sans-serif',
+        }}
+      >
         {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2">Projects</h1>
-          <p className="text-gray-500">Things I have built</p>
+        <div style={{ marginBottom: '36px' }}>
+          <h1
+            style={{
+              color: '#f1f5f9',
+              fontSize: '32px',
+              fontWeight: 800,
+              margin: '0 0 6px',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            Projects
+          </h1>
+          <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>Things I've built</p>
         </div>
 
         {/* Filter tabs */}
         {allTech.length > 1 && (
-          <div className="flex flex-wrap gap-2 mb-10">
-            {allTech.map((tech) => (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '32px' }}>
+            {allTech.map((t) => (
               <button
-                key={tech}
-                onClick={() => setFilter(tech)}
-                className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  filter === tech
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/5'
-                }`}
+                key={t}
+                onClick={() => setFilter(t)}
+                style={{
+                  padding: '7px 16px',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  fontFamily: 'Inter, sans-serif',
+                  transition: 'all 0.15s',
+                  background:
+                    filter === t
+                      ? 'linear-gradient(135deg,#6366f1,#8b5cf6)'
+                      : 'rgba(255,255,255,0.05)',
+                  color: filter === t ? '#fff' : '#94a3b8',
+                  border: filter === t ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                }}
               >
-                {tech}
+                {t}
               </button>
             ))}
           </div>
         )}
 
-        {loading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden animate-pulse"
-              >
-                <div className="h-44 bg-white/3" />
-                <div className="p-5 space-y-3">
-                  <div className="h-4 bg-white/5 rounded w-3/4" />
-                  <div className="h-3 bg-white/5 rounded w-full" />
-                  <div className="h-3 bg-white/5 rounded w-2/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-20 text-gray-600">No projects found.</div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filtered.map((p) => (
+        {/* Grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill,minmax(290px,1fr))',
+            gap: '16px',
+          }}
+        >
+          {loading ? (
+            [1, 2, 3, 4, 5, 6].map((i) => <SkeletonCard key={i} />)
+          ) : filtered.length === 0 ? (
+            <p
+              style={{
+                color: '#475569',
+                gridColumn: '1/-1',
+                textAlign: 'center',
+                padding: '60px 0',
+              }}
+            >
+              No projects found.
+            </p>
+          ) : (
+            filtered.map((p) => (
               <Link
                 key={p.id}
                 to={'/projects/' + p.slug}
                 onClick={() => analyticsService.track('project_view', p.id, p.slug)}
-                className="group block bg-[#111] border border-white/6 rounded-2xl overflow-hidden hover:border-blue-500/30 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/5"
+                style={{
+                  display: 'block',
+                  textDecoration: 'none',
+                  background: '#1a1d27',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
               >
                 {p.image_url ? (
                   <img
                     src={p.image_url}
                     alt={p.title}
-                    className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500"
+                    style={{ width: '100%', height: '180px', objectFit: 'cover' }}
                   />
                 ) : (
-                  <div className="w-full h-44 bg-gradient-to-br from-blue-500/8 to-purple-500/8 flex items-center justify-center">
-                    <svg
-                      className="w-10 h-10 text-blue-500/20"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                      />
-                    </svg>
+                  <div
+                    style={{
+                      height: '180px',
+                      background:
+                        'linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.06))',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '36px',
+                      color: '#6366f1',
+                    }}
+                  >
+                    ◈
                   </div>
                 )}
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-2 mb-1.5">
-                    <h2 className="text-white font-semibold group-hover:text-blue-400 transition-colors">
+                <div style={{ padding: '16px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '6px',
+                    }}
+                  >
+                    <h2 style={{ color: '#f1f5f9', fontSize: '15px', fontWeight: 600, margin: 0 }}>
                       {p.title}
                     </h2>
                     {p.featured && (
-                      <span className="shrink-0 text-xs bg-blue-500/15 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full">
+                      <span
+                        style={{
+                          background: 'rgba(99,102,241,0.12)',
+                          color: '#818cf8',
+                          fontSize: '10px',
+                          fontWeight: 600,
+                          padding: '3px 8px',
+                          borderRadius: '20px',
+                          border: '1px solid rgba(99,102,241,0.2)',
+                          flexShrink: 0,
+                          marginLeft: '8px',
+                        }}
+                      >
                         Featured
                       </span>
                     )}
                   </div>
-                  <p className="text-gray-500 text-sm line-clamp-2 mb-3">{p.description}</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {p.technologies &&
-                      p.technologies.map((t) => (
-                        <span
-                          key={t}
-                          className="text-xs bg-white/5 text-gray-400 px-2 py-0.5 rounded-md"
-                        >
-                          {t}
-                        </span>
-                      ))}
+                  <p
+                    style={{
+                      color: '#64748b',
+                      fontSize: '13px',
+                      margin: '0 0 12px',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {p.description}
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                    {(p.technologies || []).map((t) => (
+                      <span
+                        key={t}
+                        style={{
+                          background: 'rgba(255,255,255,0.05)',
+                          color: '#94a3b8',
+                          fontSize: '11px',
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                        }}
+                      >
+                        {t}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </Link>
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
     </PublicLayout>
   );

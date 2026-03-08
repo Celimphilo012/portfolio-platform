@@ -14,9 +14,9 @@ export default function PublicLayout({ children }) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', fn);
+    return () => window.removeEventListener('scroll', fn);
   }, []);
 
   useEffect(() => {
@@ -24,93 +24,211 @@ export default function PublicLayout({ children }) {
   }, [pathname]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-100 font-sans">
-      {/* Nav */}
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#0f1117',
+        color: '#f1f5f9',
+        fontFamily: 'Inter, sans-serif',
+      }}
+    >
+      {/* ── NAV ── */}
       <nav
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-[#0a0a0a]/95 backdrop-blur-md border-b border-white/5' : 'bg-transparent'}`}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          height: '64px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 40px',
+          background: scrolled ? 'rgba(15,17,23,0.96)' : 'transparent',
+          borderBottom: scrolled ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
+          backdropFilter: scrolled ? 'blur(14px)' : 'none',
+          transition: 'all 0.3s',
+        }}
       >
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <span className="w-7 h-7 rounded-lg bg-blue-500 flex items-center justify-center text-white text-xs font-bold group-hover:bg-blue-400 transition-colors">
-              P
-            </span>
-            <span className="text-white font-semibold tracking-tight">Portfolio</span>
-          </Link>
-
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  pathname === to
-                    ? 'text-white bg-white/10'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
-
-          {/* Mobile hamburger */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-white/5 transition-colors"
-            aria-label="Toggle menu"
+        <Link
+          to="/"
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}
+        >
+          <div
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: '14px',
+              flexShrink: 0,
+            }}
           >
-            <span
-              className={`block w-5 h-0.5 bg-gray-400 transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}
-            />
-            <span
-              className={`block w-5 h-0.5 bg-gray-400 transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`}
-            />
-            <span
-              className={`block w-5 h-0.5 bg-gray-400 transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}
-            />
-          </button>
+            P
+          </div>
+          <span style={{ color: '#f1f5f9', fontWeight: 600, fontSize: '15px' }}>Portfolio</span>
+        </Link>
+
+        {/* Desktop */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }} id="desktop-nav">
+          {navLinks.map(({ to, label }) => (
+            <Link
+              key={to}
+              to={to}
+              style={{
+                padding: '7px 15px',
+                borderRadius: '10px',
+                fontSize: '14px',
+                fontWeight: 500,
+                textDecoration: 'none',
+                transition: 'all 0.15s',
+                background: pathname === to ? 'rgba(99,102,241,0.12)' : 'transparent',
+                color: pathname === to ? '#818cf8' : '#94a3b8',
+                border:
+                  pathname === to ? '1px solid rgba(99,102,241,0.2)' : '1px solid transparent',
+              }}
+            >
+              {label}
+            </Link>
+          ))}
+          <Link
+            to="/contact"
+            style={{
+              marginLeft: '10px',
+              padding: '8px 18px',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+              color: '#fff',
+            }}
+          >
+            Hire Me
+          </Link>
         </div>
 
-        {/* Mobile menu */}
-        {menuOpen && (
-          <div className="md:hidden border-t border-white/5 bg-[#0a0a0a]/98 backdrop-blur-md">
-            <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col gap-1">
-              {navLinks.map(({ to, label }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                    pathname === to
-                      ? 'text-white bg-white/10'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Mobile burger */}
+        <button
+          onClick={() => setMenuOpen((o) => !o)}
+          id="burger-btn"
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#94a3b8',
+            fontSize: '22px',
+            padding: '4px',
+            lineHeight: 1,
+          }}
+        >
+          {menuOpen ? '✕' : '☰'}
+        </button>
       </nav>
 
-      <main className="pt-16">{children}</main>
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '64px',
+            left: 0,
+            right: 0,
+            zIndex: 49,
+            background: 'rgba(15,17,23,0.98)',
+            borderBottom: '1px solid rgba(255,255,255,0.07)',
+            padding: '12px 20px 16px',
+          }}
+        >
+          {navLinks.map(({ to, label }) => (
+            <Link
+              key={to}
+              to={to}
+              style={{
+                display: 'block',
+                padding: '11px 14px',
+                borderRadius: '10px',
+                marginBottom: '3px',
+                fontSize: '14px',
+                fontWeight: 500,
+                textDecoration: 'none',
+                color: pathname === to ? '#818cf8' : '#94a3b8',
+                background: pathname === to ? 'rgba(99,102,241,0.1)' : 'transparent',
+              }}
+            >
+              {label}
+            </Link>
+          ))}
+          <Link
+            to="/contact"
+            style={{
+              display: 'block',
+              marginTop: '8px',
+              padding: '11px 14px',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+              color: '#fff',
+              textAlign: 'center',
+            }}
+          >
+            Hire Me
+          </Link>
+        </div>
+      )}
 
-      <footer className="border-t border-white/5 mt-24">
-        <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="w-6 h-6 rounded-md bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
+      <main style={{ paddingTop: '64px' }}>{children}</main>
+
+      {/* ── FOOTER ── */}
+      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: '96px' }}>
+        <div
+          style={{
+            maxWidth: '1100px',
+            margin: '0 auto',
+            padding: '32px 40px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div
+              style={{
+                width: '26px',
+                height: '26px',
+                borderRadius: '7px',
+                background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                fontSize: '11px',
+                fontWeight: 700,
+              }}
+            >
               P
-            </span>
-            <span className="text-sm text-gray-500">Portfolio</span>
+            </div>
+            <span style={{ color: '#475569', fontSize: '13px' }}>Portfolio</span>
           </div>
-          <p className="text-xs text-gray-600">Built with React, Node.js &amp; Supabase</p>
-          <div className="flex items-center gap-4">
+          <p style={{ color: '#2d3748', fontSize: '12px', margin: 0 }}>
+            Built with React · Node.js · Supabase
+          </p>
+          <div style={{ display: 'flex', gap: '20px' }}>
             {navLinks.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
-                className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
+                style={{ color: '#475569', fontSize: '12px', textDecoration: 'none' }}
               >
                 {label}
               </Link>
@@ -118,6 +236,15 @@ export default function PublicLayout({ children }) {
           </div>
         </div>
       </footer>
+
+      {/* Responsive helpers */}
+      <style>{`
+        #burger-btn { display: none; }
+        @media (max-width: 768px) {
+          #desktop-nav { display: none !important; }
+          #burger-btn  { display: block !important; }
+        }
+      `}</style>
     </div>
   );
 }
