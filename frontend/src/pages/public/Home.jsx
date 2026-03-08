@@ -9,7 +9,6 @@ function ProjectCard({ p }) {
   return (
     <Link
       to={'/projects/' + p.slug}
-      onClick={() => analyticsService.track('project_view', p.id, p.slug)}
       style={{
         display: 'block',
         textDecoration: 'none',
@@ -90,30 +89,31 @@ function ProjectCard({ p }) {
 
 export default function Home() {
   const [about, setAbout] = useState(null);
-  const [projects, setProjects] = useState([]);
-  const [allProjects, setAllProjects] = useState([]);
+  const [allProjects, setAll] = useState([]);
+  const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    analyticsService.track('page_view', null, 'home');
+    try {
+      analyticsService.track('page_view', null, 'home');
+    } catch (_) {}
 
-    Promise.all([aboutService.get(), projectService.getAll()])
-      .then(([aboutData, projectsData]) => {
-        setAbout(aboutData);
-        setAllProjects(projectsData);
-        setProjects(projectsData.filter((x) => x.featured).slice(0, 3));
+    Promise.allSettled([aboutService.get(), projectService.getAll()])
+      .then(([aboutRes, projectsRes]) => {
+        if (aboutRes.status === 'fulfilled') setAbout(aboutRes.value);
+        if (projectsRes.status === 'fulfilled') {
+          const list = Array.isArray(projectsRes.value) ? projectsRes.value : [];
+          setAll(list);
+          setFeatured(list.filter((x) => x.featured).slice(0, 3));
+        }
       })
       .finally(() => setLoading(false));
   }, []);
 
-  // Real stats derived from actual data
   const totalProjects = allProjects.length;
   const liveProjects = allProjects.filter((p) => p.demo_url).length;
   const techStack = [...new Set(allProjects.flatMap((p) => p.technologies || []))].length;
-
-  // Most recent 3 projects for the card list (by insertion order)
-  const recentProjects = allProjects.slice(0, 3);
-
+  const recentThree = allProjects.slice(0, 3);
   const cardIcons = ['◈', '◉', '◱'];
 
   return (
@@ -130,7 +130,7 @@ export default function Home() {
           flexWrap: 'wrap',
         }}
       >
-        {/* Left — text */}
+        {/* Left */}
         <div style={{ flex: '1 1 360px', minWidth: 0 }}>
           <div
             style={{
@@ -166,10 +166,9 @@ export default function Home() {
               lineHeight: 1.1,
               margin: '0 0 20px',
               letterSpacing: '-0.02em',
-              whiteSpace: 'pre-line',
             }}
           >
-            {about?.headline || 'Full Stack\nDeveloper'}
+            {about?.headline || 'Full Stack Developer'}
           </h1>
 
           <p
@@ -241,7 +240,7 @@ export default function Home() {
               boxShadow: '0 40px 80px rgba(0,0,0,0.5)',
             }}
           >
-            {/* Card header */}
+            {/* Header */}
             <div
               style={{
                 display: 'flex',
@@ -292,7 +291,6 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              {/* Window dots */}
               <div style={{ display: 'flex', gap: '4px' }}>
                 {['#ef4444', '#f59e0b', '#4ade80'].map((c) => (
                   <div
@@ -303,7 +301,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Real stats */}
+            {/* Stats */}
             <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
               {[
                 {
@@ -341,7 +339,7 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Real recent projects */}
+            {/* Recent projects */}
             <p
               style={{
                 color: '#475569',
@@ -397,7 +395,7 @@ export default function Home() {
                   </div>
                 </div>
               ))
-            ) : recentProjects.length === 0 ? (
+            ) : recentThree.length === 0 ? (
               <p
                 style={{
                   color: '#475569',
@@ -410,7 +408,7 @@ export default function Home() {
                 No projects yet
               </p>
             ) : (
-              recentProjects.map((p, i) => (
+              recentThree.map((p, i) => (
                 <Link
                   key={p.id}
                   to={'/projects/' + p.slug}
@@ -420,7 +418,7 @@ export default function Home() {
                     justifyContent: 'space-between',
                     padding: '9px 0',
                     borderBottom:
-                      i < recentProjects.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                      i < recentThree.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
                     textDecoration: 'none',
                   }}
                 >
@@ -435,15 +433,14 @@ export default function Home() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontSize: '14px',
-                        background:
-                          [
-                            'rgba(99,102,241,0.15)',
-                            'rgba(16,185,129,0.15)',
-                            'rgba(245,158,11,0.15)',
-                          ][i] || 'rgba(99,102,241,0.15)',
+                        background: [
+                          'rgba(99,102,241,0.15)',
+                          'rgba(16,185,129,0.15)',
+                          'rgba(245,158,11,0.15)',
+                        ][i],
                       }}
                     >
-                      {cardIcons[i] || '◈'}
+                      {cardIcons[i]}
                     </div>
                     <div style={{ minWidth: 0 }}>
                       <p
@@ -484,7 +481,7 @@ export default function Home() {
       </section>
 
       {/* ── FEATURED PROJECTS ── */}
-      {!loading && projects.length > 0 && (
+      {!loading && featured.length > 0 && (
         <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 40px 80px' }}>
           <div
             style={{
@@ -518,14 +515,14 @@ export default function Home() {
               gap: '16px',
             }}
           >
-            {projects.map((p) => (
+            {featured.map((p) => (
               <ProjectCard key={p.id} p={p} />
             ))}
           </div>
         </section>
       )}
 
-      {/* ── CTA BANNER ── */}
+      {/* ── CTA ── */}
       <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 40px 80px' }}>
         <div
           style={{
@@ -545,7 +542,7 @@ export default function Home() {
               Ready to build something together?
             </h2>
             <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>
-              I'm available for freelance projects and full-time positions.
+              Available for freelance projects and full-time positions.
             </p>
           </div>
           <Link
