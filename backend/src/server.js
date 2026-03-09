@@ -37,6 +37,14 @@ const authLimiter = rateLimit({
 app.use('/api', globalLimiter);
 app.use('/api/auth', authLimiter);
 
+app.options(
+  '*',
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
+
 // ── Routes ──────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
