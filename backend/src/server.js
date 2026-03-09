@@ -12,6 +12,7 @@ import messageRoutes from './routes/messages.js';
 import analyticsRoutes from './routes/analytics.js';
 
 const app = express();
+app.set('trust proxy', 1);
 
 // ── Middleware ──────────────────────────────────────────
 const corsOptions = {
