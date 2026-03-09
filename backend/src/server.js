@@ -14,36 +14,30 @@ import analyticsRoutes from './routes/analytics.js';
 const app = express();
 
 // ── Middleware ──────────────────────────────────────────
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 
 // ── Rate limiting ───────────────────────────────────────
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
   message: { error: 'Too many requests, please try again later.' },
 });
 const authLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000,
   max: 10,
   message: { error: 'Too many login attempts, please try again later.' },
 });
 
 app.use('/api', globalLimiter);
 app.use('/api/auth', authLimiter);
-
-app.options(
-  '(.*)',
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-  })
-);
 
 // ── Routes ──────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
@@ -65,5 +59,6 @@ app.use((err, req, res, next) => {
   });
 });
 
+// ── Start server ────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '0.0.0.0', () => console.log(`✅ Server running on port ${PORT}`));
