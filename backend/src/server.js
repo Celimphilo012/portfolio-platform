@@ -38,7 +38,7 @@ app.use('/api', globalLimiter);
 app.use('/api/auth', authLimiter);
 
 app.options(
-  '*',
+  '(.*)',
   cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
