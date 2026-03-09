@@ -14,3 +14,5 @@ pool.on('error', (err) => {
 export const db = {
   query: (text, params) => pool.query(text, params),
 };
+
+export default pool;
