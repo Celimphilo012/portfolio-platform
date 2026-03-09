@@ -5,7 +5,7 @@
     "buildCommand": "cd backend && npm install"
   },
   "deploy": {
-    "startCommand": "node backend/src/index.js",
+    "startCommand": "node backend/src/server.js",
     "restartPolicyType": "ON_FAILURE",
     "healthcheckPath": "/health"
   }
