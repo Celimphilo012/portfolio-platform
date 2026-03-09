@@ -8,14 +8,18 @@ export default function ProjectCaseStudy() {
   const { slug } = useParams();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     projectService
       .getBySlug(slug)
       .then((p) => {
-        setProject(p);
-        analyticsService.track('project_view', p.id, slug);
+        setProject(p || null);
+        try {
+          analyticsService.track('project_view', p?.id, slug);
+        } catch (_) {}
       })
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, [slug]);
 
@@ -30,30 +34,60 @@ export default function ProjectCaseStudy() {
             fontFamily: 'Inter, sans-serif',
           }}
         >
-          {[200, 40, 16, 16, 100].map((h, i) => (
-            <div
-              key={i}
-              style={{
-                height: h + 'px',
-                background: 'rgba(255,255,255,0.04)',
-                borderRadius: '12px',
-                marginBottom: '16px',
-                width: i === 1 ? '50%' : '100%',
-              }}
-            />
-          ))}
+          <div
+            style={{
+              height: '14px',
+              background: 'rgba(255,255,255,0.05)',
+              borderRadius: '6px',
+              width: '120px',
+              marginBottom: '32px',
+            }}
+          />
+          <div
+            style={{
+              height: '280px',
+              background: 'rgba(255,255,255,0.04)',
+              borderRadius: '16px',
+              marginBottom: '24px',
+            }}
+          />
+          <div
+            style={{
+              height: '36px',
+              background: 'rgba(255,255,255,0.05)',
+              borderRadius: '8px',
+              width: '50%',
+              marginBottom: '12px',
+            }}
+          />
+          <div
+            style={{
+              height: '14px',
+              background: 'rgba(255,255,255,0.04)',
+              borderRadius: '6px',
+              marginBottom: '8px',
+            }}
+          />
+          <div
+            style={{
+              height: '14px',
+              background: 'rgba(255,255,255,0.04)',
+              borderRadius: '6px',
+              width: '80%',
+            }}
+          />
         </div>
       </PublicLayout>
     );
 
-  if (!project)
+  if (error || !project)
     return (
       <PublicLayout>
         <div
           style={{ textAlign: 'center', padding: '120px 40px', fontFamily: 'Inter, sans-serif' }}
         >
           <p style={{ color: '#475569', fontSize: '16px', marginBottom: '16px' }}>
-            Project not found.
+            {error ? 'Could not load this project.' : 'Project not found.'}
           </p>
           <Link
             to="/projects"
@@ -83,7 +117,6 @@ export default function ProjectCaseStudy() {
           fontFamily: 'Inter, sans-serif',
         }}
       >
-        {/* Back */}
         <Link
           to="/projects"
           style={{
@@ -99,7 +132,6 @@ export default function ProjectCaseStudy() {
           ← Back to Projects
         </Link>
 
-        {/* Hero image */}
         {project.image_url && (
           <div
             style={{
@@ -117,7 +149,6 @@ export default function ProjectCaseStudy() {
           </div>
         )}
 
-        {/* Title */}
         <div style={{ marginBottom: '20px' }}>
           {project.featured && (
             <span
@@ -152,7 +183,6 @@ export default function ProjectCaseStudy() {
           </p>
         </div>
 
-        {/* Tech stack */}
         {(project.technologies || []).length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', marginBottom: '24px' }}>
             {project.technologies.map((t) => (
@@ -174,7 +204,6 @@ export default function ProjectCaseStudy() {
           </div>
         )}
 
-        {/* Links */}
         <div
           style={{
             display: 'flex',
@@ -230,7 +259,6 @@ export default function ProjectCaseStudy() {
           )}
         </div>
 
-        {/* Case study sections */}
         {sections.length > 0 && (
           <div>
             <h2

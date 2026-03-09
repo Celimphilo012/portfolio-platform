@@ -13,7 +13,6 @@ const catColor = {
   Mobile: '#ec4899',
   Other: '#64748b',
 };
-
 function getColor(cat) {
   return catColor[cat] || catColor.Other;
 }
@@ -21,11 +20,20 @@ function getColor(cat) {
 export default function About() {
   const [about, setAbout] = useState(null);
   const [skills, setSkills] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    analyticsService.track('page_view', null, 'about');
-    aboutService.get().then(setAbout);
-    skillService.getAll().then(setSkills);
+    try {
+      analyticsService.track('page_view', null, 'about');
+    } catch (_) {}
+
+    Promise.allSettled([aboutService.get(), skillService.getAll()])
+      .then(([aboutRes, skillsRes]) => {
+        if (aboutRes.status === 'fulfilled' && aboutRes.value) setAbout(aboutRes.value);
+        if (skillsRes.status === 'fulfilled' && Array.isArray(skillsRes.value))
+          setSkills(skillsRes.value);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const categories = [...new Set(skills.map((s) => s.category))];
@@ -40,7 +48,7 @@ export default function About() {
           fontFamily: 'Inter, sans-serif',
         }}
       >
-        {/* ── Profile header ── */}
+        {/* ── Profile ── */}
         <div
           style={{
             display: 'flex',
@@ -52,7 +60,17 @@ export default function About() {
             borderBottom: '1px solid rgba(255,255,255,0.07)',
           }}
         >
-          {about?.avatar_url && (
+          {loading ? (
+            <div
+              style={{
+                width: '100px',
+                height: '100px',
+                borderRadius: '20px',
+                background: 'rgba(255,255,255,0.05)',
+                flexShrink: 0,
+              }}
+            />
+          ) : about?.avatar_url ? (
             <img
               src={about.avatar_url}
               alt="Profile"
@@ -65,49 +83,82 @@ export default function About() {
                 flexShrink: 0,
               }}
             />
-          )}
+          ) : null}
+
           <div style={{ flex: 1, minWidth: '260px' }}>
-            <h1
-              style={{
-                color: '#f1f5f9',
-                fontSize: '32px',
-                fontWeight: 800,
-                margin: '0 0 8px',
-                letterSpacing: '-0.02em',
-              }}
-            >
-              {about?.headline || 'About Me'}
-            </h1>
-            {about?.location && (
-              <p
-                style={{
-                  color: '#64748b',
-                  fontSize: '13px',
-                  margin: '0 0 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                }}
-              >
-                {about.location}
-              </p>
+            {loading ? (
+              <>
+                <div
+                  style={{
+                    height: '36px',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '8px',
+                    width: '50%',
+                    marginBottom: '12px',
+                  }}
+                />
+                <div
+                  style={{
+                    height: '14px',
+                    background: 'rgba(255,255,255,0.04)',
+                    borderRadius: '6px',
+                    marginBottom: '8px',
+                  }}
+                />
+                <div
+                  style={{
+                    height: '14px',
+                    background: 'rgba(255,255,255,0.04)',
+                    borderRadius: '6px',
+                    width: '85%',
+                    marginBottom: '8px',
+                  }}
+                />
+                <div
+                  style={{
+                    height: '14px',
+                    background: 'rgba(255,255,255,0.04)',
+                    borderRadius: '6px',
+                    width: '70%',
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <h1
+                  style={{
+                    color: '#f1f5f9',
+                    fontSize: '32px',
+                    fontWeight: 800,
+                    margin: '0 0 8px',
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  {about?.headline || 'About Me'}
+                </h1>
+                {about?.location && (
+                  <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 16px' }}>
+                    📍 {about.location}
+                  </p>
+                )}
+                <p
+                  style={{
+                    color: '#94a3b8',
+                    fontSize: '15px',
+                    lineHeight: 1.75,
+                    margin: 0,
+                    maxWidth: '580px',
+                  }}
+                >
+                  {about?.bio || ''}
+                </p>
+              </>
             )}
-            <p
-              style={{
-                color: '#94a3b8',
-                fontSize: '15px',
-                lineHeight: 1.75,
-                margin: 0,
-                maxWidth: '580px',
-              }}
-            >
-              {about?.bio || ''}
-            </p>
           </div>
         </div>
 
         {/* ── Skills ── */}
-        {skills.length > 0 && (
+        {!loading && skills.length > 0 && (
           <div style={{ marginBottom: '56px' }}>
             <h2
               style={{
@@ -202,6 +253,53 @@ export default function About() {
           </div>
         )}
 
+        {/* Skeleton skills */}
+        {loading && (
+          <div style={{ marginBottom: '56px' }}>
+            <div
+              style={{
+                height: '24px',
+                background: 'rgba(255,255,255,0.05)',
+                borderRadius: '8px',
+                width: '120px',
+                marginBottom: '28px',
+              }}
+            />
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))',
+                gap: '28px',
+              }}
+            >
+              {[1, 2].map((i) => (
+                <div key={i}>
+                  {[1, 2, 3].map((j) => (
+                    <div key={j} style={{ marginBottom: '14px' }}>
+                      <div
+                        style={{
+                          height: '12px',
+                          background: 'rgba(255,255,255,0.05)',
+                          borderRadius: '4px',
+                          width: '60%',
+                          marginBottom: '8px',
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: '5px',
+                          background: 'rgba(255,255,255,0.04)',
+                          borderRadius: '3px',
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ── Resume CTA ── */}
         <div
           style={{
@@ -226,7 +324,11 @@ export default function About() {
           </div>
           <a
             href={resumeService.download()}
-            onClick={() => analyticsService.track('resume_download')}
+            onClick={() => {
+              try {
+                analyticsService.track('resume_download');
+              } catch (_) {}
+            }}
             style={{
               display: 'inline-flex',
               alignItems: 'center',

@@ -49,13 +49,20 @@ function SkeletonCard() {
 export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [filter, setFilter] = useState('All');
 
   useEffect(() => {
-    analyticsService.track('page_view', null, 'projects');
+    try {
+      analyticsService.track('page_view', null, 'projects');
+    } catch (_) {}
+
     projectService
       .getAll()
-      .then(setProjects)
+      .then((data) => {
+        setProjects(Array.isArray(data) ? data : []);
+      })
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -90,7 +97,7 @@ export default function Projects() {
         </div>
 
         {/* Filter tabs */}
-        {allTech.length > 1 && (
+        {!loading && !error && allTech.length > 1 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '32px' }}>
             {allTech.map((t) => (
               <button
@@ -118,137 +125,180 @@ export default function Projects() {
           </div>
         )}
 
-        {/* Grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill,minmax(290px,1fr))',
-            gap: '16px',
-          }}
-        >
-          {loading ? (
-            [1, 2, 3, 4, 5, 6].map((i) => <SkeletonCard key={i} />)
-          ) : filtered.length === 0 ? (
-            <p
+        {/* States */}
+        {error ? (
+          <div style={{ textAlign: 'center', padding: '80px 0' }}>
+            <p style={{ color: '#64748b', fontSize: '15px', margin: '0 0 12px' }}>
+              Could not load projects right now.
+            </p>
+            <button
+              onClick={() => {
+                setError(false);
+                setLoading(true);
+                projectService
+                  .getAll()
+                  .then((d) => setProjects(Array.isArray(d) ? d : []))
+                  .catch(() => setError(true))
+                  .finally(() => setLoading(false));
+              }}
               style={{
-                color: '#475569',
-                gridColumn: '1/-1',
-                textAlign: 'center',
-                padding: '60px 0',
+                background: 'rgba(99,102,241,0.1)',
+                border: '1px solid rgba(99,102,241,0.2)',
+                borderRadius: '10px',
+                padding: '8px 20px',
+                color: '#818cf8',
+                fontSize: '13px',
+                cursor: 'pointer',
+                fontFamily: 'Inter, sans-serif',
               }}
             >
-              No projects found.
-            </p>
-          ) : (
-            filtered.map((p) => (
-              <Link
-                key={p.id}
-                to={'/projects/' + p.slug}
-                onClick={() => analyticsService.track('project_view', p.id, p.slug)}
+              Try again
+            </button>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill,minmax(290px,1fr))',
+              gap: '16px',
+            }}
+          >
+            {loading ? (
+              [1, 2, 3, 4, 5, 6].map((i) => <SkeletonCard key={i} />)
+            ) : filtered.length === 0 ? (
+              <p
                 style={{
-                  display: 'block',
-                  textDecoration: 'none',
-                  background: '#1a1d27',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
-                  e.currentTarget.style.transform = 'translateY(0)';
+                  color: '#475569',
+                  gridColumn: '1/-1',
+                  textAlign: 'center',
+                  padding: '60px 0',
+                  margin: 0,
                 }}
               >
-                {p.image_url ? (
-                  <img
-                    src={p.image_url}
-                    alt={p.title}
-                    style={{ width: '100%', height: '180px', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      height: '180px',
-                      background:
-                        'linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.06))',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '36px',
-                      color: '#6366f1',
-                    }}
-                  >
-                    ◈
-                  </div>
-                )}
-                <div style={{ padding: '16px' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginBottom: '6px',
-                    }}
-                  >
-                    <h2 style={{ color: '#f1f5f9', fontSize: '15px', fontWeight: 600, margin: 0 }}>
-                      {p.title}
-                    </h2>
-                    {p.featured && (
-                      <span
-                        style={{
-                          background: 'rgba(99,102,241,0.12)',
-                          color: '#818cf8',
-                          fontSize: '10px',
-                          fontWeight: 600,
-                          padding: '3px 8px',
-                          borderRadius: '20px',
-                          border: '1px solid rgba(99,102,241,0.2)',
-                          flexShrink: 0,
-                          marginLeft: '8px',
-                        }}
+                No projects found.
+              </p>
+            ) : (
+              filtered.map((p) => (
+                <Link
+                  key={p.id}
+                  to={'/projects/' + p.slug}
+                  onClick={() => {
+                    try {
+                      analyticsService.track('project_view', p.id, p.slug);
+                    } catch (_) {}
+                  }}
+                  style={{
+                    display: 'block',
+                    textDecoration: 'none',
+                    background: '#1a1d27',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  {p.image_url ? (
+                    <img
+                      src={p.image_url}
+                      alt={p.title}
+                      style={{
+                        width: '100%',
+                        height: '180px',
+                        objectFit: 'cover',
+                        display: 'block',
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        height: '180px',
+                        background:
+                          'linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.06))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '36px',
+                        color: '#6366f1',
+                      }}
+                    >
+                      ◈
+                    </div>
+                  )}
+                  <div style={{ padding: '16px' }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        justifyContent: 'space-between',
+                        gap: '8px',
+                        marginBottom: '6px',
+                      }}
+                    >
+                      <h2
+                        style={{ color: '#f1f5f9', fontSize: '15px', fontWeight: 600, margin: 0 }}
                       >
-                        Featured
-                      </span>
-                    )}
+                        {p.title}
+                      </h2>
+                      {p.featured && (
+                        <span
+                          style={{
+                            background: 'rgba(99,102,241,0.12)',
+                            color: '#818cf8',
+                            fontSize: '10px',
+                            fontWeight: 600,
+                            padding: '3px 8px',
+                            borderRadius: '20px',
+                            border: '1px solid rgba(99,102,241,0.2)',
+                            flexShrink: 0,
+                          }}
+                        >
+                          Featured
+                        </span>
+                      )}
+                    </div>
+                    <p
+                      style={{
+                        color: '#64748b',
+                        fontSize: '13px',
+                        margin: '0 0 12px',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {p.description}
+                    </p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                      {(p.technologies || []).map((t) => (
+                        <span
+                          key={t}
+                          style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            color: '#94a3b8',
+                            fontSize: '11px',
+                            padding: '3px 8px',
+                            borderRadius: '6px',
+                          }}
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <p
-                    style={{
-                      color: '#64748b',
-                      fontSize: '13px',
-                      margin: '0 0 12px',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {p.description}
-                  </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                    {(p.technologies || []).map((t) => (
-                      <span
-                        key={t}
-                        style={{
-                          background: 'rgba(255,255,255,0.05)',
-                          color: '#94a3b8',
-                          fontSize: '11px',
-                          padding: '3px 8px',
-                          borderRadius: '6px',
-                        }}
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </Link>
-            ))
-          )}
-        </div>
+                </Link>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </PublicLayout>
   );

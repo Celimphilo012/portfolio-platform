@@ -26,7 +26,7 @@ const labelStyle = {
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', body: '' });
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState(null); // null | 'success' | 'error'
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
@@ -34,6 +34,7 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setStatus(null);
     try {
       await messageService.send(form);
       setStatus('success');
@@ -55,7 +56,6 @@ export default function Contact() {
           fontFamily: 'Inter, sans-serif',
         }}
       >
-        {/* Header */}
         <div style={{ marginBottom: '48px' }}>
           <h1
             style={{
@@ -81,9 +81,8 @@ export default function Contact() {
             alignItems: 'start',
           }}
         >
-          {/* ── Info column ── */}
+          {/* Info column */}
           <div>
-            {/* Info cards */}
             {[
               { emoji: '⚡', title: 'Quick Response', desc: 'I reply within 24 hours' },
               { emoji: '💼', title: 'Open to Work', desc: 'Freelance & Full-time roles' },
@@ -130,7 +129,6 @@ export default function Contact() {
               </div>
             ))}
 
-            {/* Decorative card */}
             <div
               style={{
                 background: '#1a1d27',
@@ -141,7 +139,7 @@ export default function Contact() {
               }}
             >
               <div
-                style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}
               >
                 <div
                   style={{
@@ -156,12 +154,12 @@ export default function Contact() {
                 </span>
               </div>
               <p style={{ color: '#94a3b8', fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
-                I'm open to new opportunities and exciting projects. Don't hesitate to reach out!
+                I'm open to new opportunities. Don't hesitate to reach out!
               </p>
             </div>
           </div>
 
-          {/* ── Form column ── */}
+          {/* Form column */}
           <div
             style={{
               background: '#1a1d27',
@@ -178,27 +176,16 @@ export default function Contact() {
                   borderRadius: '12px',
                   padding: '14px 16px',
                   marginBottom: '20px',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '10px',
                 }}
               >
-                <span style={{ fontSize: '16px' }}>✓</span>
-                <div>
-                  <p
-                    style={{
-                      color: '#4ade80',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      margin: '0 0 2px',
-                    }}
-                  >
-                    Message sent!
-                  </p>
-                  <p style={{ color: '#4ade80', fontSize: '12px', margin: 0, opacity: 0.7 }}>
-                    I'll get back to you within 24 hours.
-                  </p>
-                </div>
+                <p
+                  style={{ color: '#4ade80', fontSize: '13px', fontWeight: 600, margin: '0 0 2px' }}
+                >
+                  ✓ Message sent!
+                </p>
+                <p style={{ color: '#4ade80', fontSize: '12px', margin: 0, opacity: 0.7 }}>
+                  I'll get back to you within 24 hours.
+                </p>
               </div>
             )}
 
@@ -219,7 +206,6 @@ export default function Contact() {
             )}
 
             <form onSubmit={handleSubmit}>
-              {/* Name + Email */}
               <div
                 style={{
                   display: 'grid',
@@ -258,7 +244,6 @@ export default function Contact() {
                 </div>
               </div>
 
-              {/* Subject */}
               <div style={{ marginBottom: '14px' }}>
                 <label style={labelStyle}>Subject</label>
                 <input
@@ -273,7 +258,6 @@ export default function Contact() {
                 />
               </div>
 
-              {/* Message */}
               <div style={{ marginBottom: '20px' }}>
                 <label style={labelStyle}>Message *</label>
                 <textarea
@@ -307,7 +291,7 @@ export default function Contact() {
                   fontFamily: 'Inter, sans-serif',
                 }}
               >
-                {loading ? 'Sending...' : 'Send Message →'}
+                {loading ? 'Sending…' : 'Send Message →'}
               </button>
             </form>
           </div>
