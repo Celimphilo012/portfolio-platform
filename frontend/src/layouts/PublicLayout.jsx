@@ -223,7 +223,7 @@ export default function PublicLayout({ children }) {
           <p style={{ color: '#2d3748', fontSize: '12px', margin: 0 }}>
             Built with React · Node.js · Supabase
           </p>
-          <div style={{ display: 'flex', gap: '20px' }}>
+          {/* <div style={{ display: 'flex', gap: '20px' }}>
             {navLinks.map(({ to, label }) => (
               <Link
                 key={to}
@@ -233,7 +233,7 @@ export default function PublicLayout({ children }) {
                 {label}
               </Link>
             ))}
-          </div>
+          </div> */}
         </div>
       </footer>
 

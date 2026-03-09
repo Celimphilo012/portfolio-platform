@@ -183,7 +183,7 @@ export default function AdminLogin() {
                     lineHeight: 1,
                   }}
                 >
-                  {showPass ? '🙈' : '👁️'}
+                  {showPass ? '' : ''}
                 </button>
               </div>
             </div>

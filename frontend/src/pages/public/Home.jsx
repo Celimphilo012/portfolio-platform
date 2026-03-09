@@ -31,7 +31,7 @@ function ProjectCard({ p }) {
         <img
           src={p.image_url}
           alt={p.title}
-          style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }}
+          style={{ width: '100%', height: '180px', objectFit: 'cover', objectPosition: 'top' }}
         />
       ) : (
         <div
@@ -286,9 +286,9 @@ export default function Home() {
                   <p style={{ color: '#f1f5f9', fontSize: '13px', fontWeight: 600, margin: 0 }}>
                     Welcome!
                   </p>
-                  <p style={{ color: '#64748b', fontSize: '11px', margin: 0 }}>
+                  {/* <p style={{ color: '#64748b', fontSize: '11px', margin: 0 }}>
                     {loading ? '...' : about?.headline || 'Developer'}
-                  </p>
+                  </p> */}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '4px' }}>

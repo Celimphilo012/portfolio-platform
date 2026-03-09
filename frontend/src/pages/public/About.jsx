@@ -138,7 +138,7 @@ export default function About() {
                 </h1>
                 {about?.location && (
                   <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 16px' }}>
-                    📍 {about.location}
+                    {about.location}
                   </p>
                 )}
                 <p

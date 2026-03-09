@@ -222,7 +222,7 @@ export default function Contact() {
                     value={form.name}
                     onChange={handleChange}
                     required
-                    placeholder="John Doe"
+                    placeholder="Silalele Masilela"
                     style={inputStyle}
                     onFocus={(e) => (e.target.style.borderColor = '#6366f1')}
                     onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -236,7 +236,7 @@ export default function Contact() {
                     value={form.email}
                     onChange={handleChange}
                     required
-                    placeholder="you@example.com"
+                    placeholder="silalele@gmail.com"
                     style={inputStyle}
                     onFocus={(e) => (e.target.style.borderColor = '#6366f1')}
                     onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}

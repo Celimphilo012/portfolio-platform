@@ -15,6 +15,14 @@ const pdfFilter = (req, file, cb) => {
     ? cb(null, true)
     : cb(new Error('Only PDF files are allowed'));
 };
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  fileFilter: (req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    allowed.includes(file.mimetype) ? cb(null, true) : cb(new Error('Images only'));
+  },
+});
 
 export const uploadImage = multer({
   storage,
