@@ -19,6 +19,7 @@ import ManageContact from './pages/admin/ManageContact.jsx';
 import ManageResume from './pages/admin/ManageResume.jsx';
 import Analytics from './pages/admin/Analytics.jsx';
 import Experience from './pages/admin/Experience.jsx';
+import ResumeGenerator from './pages/admin/ResumeGenerator.jsx';
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="resume" element={<ManageResume />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="experience" element={<Experience />} />
+            <Route path="resume-generator" element={<ResumeGenerator />} />
           </Route>
         </Routes>
       </BrowserRouter>

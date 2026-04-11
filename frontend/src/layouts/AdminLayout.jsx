@@ -11,6 +11,7 @@ const navItems = [
   { to: '/admin/contact', label: 'Messages', icon: '✉' },
   { to: '/admin/resume', label: 'Resume', icon: '◱' },
   { to: '/admin/analytics', label: 'Analytics', icon: '◈' },
+  { to: '/admin/resume-generator', label: 'AI Resume', icon: '✦' },
 ];
 
 const S = {
