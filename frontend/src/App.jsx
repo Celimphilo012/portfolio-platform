@@ -18,6 +18,7 @@ import ManageAbout from './pages/admin/ManageAbout.jsx';
 import ManageContact from './pages/admin/ManageContact.jsx';
 import ManageResume from './pages/admin/ManageResume.jsx';
 import Analytics from './pages/admin/Analytics.jsx';
+import Experience from './pages/admin/Experience.jsx';
 
 export default function App() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="contact" element={<ManageContact />} />
             <Route path="resume" element={<ManageResume />} />
             <Route path="analytics" element={<Analytics />} />
+            <Route path="experience" element={<Experience />} />
           </Route>
         </Routes>
       </BrowserRouter>

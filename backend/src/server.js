@@ -10,6 +10,7 @@ import aboutRoutes from './routes/about.js';
 import resumeRoutes from './routes/resume.js';
 import messageRoutes from './routes/messages.js';
 import analyticsRoutes from './routes/analytics.js';
+import experienceRoutes from './routes/experiences.js';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -48,6 +49,7 @@ app.use('/api/about', aboutRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/experiences', experienceRoutes);
 
 // ── Health check ────────────────────────────────────────
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

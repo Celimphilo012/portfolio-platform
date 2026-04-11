@@ -6,6 +6,7 @@ const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: '⊞' },
   { to: '/admin/projects', label: 'Projects', icon: '◈' },
   { to: '/admin/skills', label: 'Skills', icon: '◉' },
+  { to: '/admin/experience', label: 'Experience', icon: '◷' }, // ← add this
   { to: '/admin/about', label: 'About', icon: '◎' },
   { to: '/admin/contact', label: 'Messages', icon: '✉' },
   { to: '/admin/resume', label: 'Resume', icon: '◱' },
