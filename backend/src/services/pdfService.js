@@ -113,7 +113,7 @@ export const generateCVPDF = async ({ about, experiences, projects, skills }) =>
   }
 
   if (about.location) {
-    page.drawText(`📍 ${about.location}`, {
+    page.drawText(`Location: ${about.location}`, {
       x: margin,
       y,
       size: 9,
