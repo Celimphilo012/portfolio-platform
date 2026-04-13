@@ -4,7 +4,6 @@ import { authenticate } from '../middleware/auth.js';
 import { uploadPDF } from '../middleware/upload.js';
 import { uploadFile, getSignedUrl } from '../utils/storage.js';
 import { generateResume, improveResume } from '../controllers/resumeController.js';
-import { generateResumePDF } from '../services/pdfService.js';
 
 const router = Router();
 
