@@ -1,7 +1,8 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { db } from '../config/db.js';
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
 export const generateResume = async (req, res) => {
   try {
@@ -30,16 +31,8 @@ export const generateResume = async (req, res) => {
 
     const prompt = buildPrompt({ job_title, company_name, job_description, context });
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2000,
-      system: `You are an expert resume writer and career coach. You write ATS-friendly, 
-concise, impactful resumes tailored to specific job descriptions. You always respond 
-with valid JSON only — no markdown, no explanation, just the JSON object.`,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    const raw = message.content[0].text.trim();
+    const result = await model.generateContent(prompt);
+    const raw = result.response.text().trim();
 
     let resume;
     try {
@@ -67,29 +60,24 @@ export const improveResume = async (req, res) => {
       });
     }
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2000,
-      system: `You are an expert resume writer. Improve the given resume to be more 
-impactful, clearer, and better aligned with the job description. Use stronger action 
-verbs, quantify achievements where possible, and improve ATS keyword alignment.
-Respond with valid JSON only — same structure as the input resume.`,
-      messages: [
-        {
-          role: 'user',
-          content: `Job Title: ${job_title}
+    const result = await model.generateContent(`
+You are an expert resume writer. Improve the given resume to be more impactful, 
+clearer, and better aligned with the job description. Use stronger action verbs, 
+quantify achievements where possible, and improve ATS keyword alignment.
+Respond with valid JSON only — same structure as the input resume. No markdown, no extra text.
+
+Job Title: ${job_title}
 Company: ${company_name}
 Job Description: ${job_description}
 
 Previous Resume (JSON):
 ${JSON.stringify(previous_resume, null, 2)}
 
-Improve this resume. Return the same JSON structure with enhanced content.`,
-        },
-      ],
-    });
+Improve this resume. Return the same JSON structure with enhanced content.
+`);
 
-    const raw = message.content[0].text.trim();
+    const raw = result.response.text().trim();
+
     let resume;
     try {
       resume = JSON.parse(raw);
@@ -105,11 +93,11 @@ Improve this resume. Return the same JSON structure with enhanced content.`,
   }
 };
 
-// ── Prompt builder (unchanged) ──────────────────────────────────────────────
+// ── Prompt builder ──────────────────────────────────────────────────────────
 function buildPrompt({ job_title, company_name, job_description, context }) {
   const { experiences, projects, skills, about } = context;
 
-  return `You are tailoring a resume for this specific role:
+  return `You are an expert resume writer tailoring a resume for this specific role.
 
 JOB TITLE: ${job_title}
 COMPANY: ${company_name}
@@ -152,14 +140,14 @@ ${skills.map((s) => `${s.name} (${s.category})`).join(', ')}
 
 ---
 INSTRUCTIONS:
-1. Tailor everything to the job description — highlight what's most relevant
-2. Use strong action verbs (Built, Led, Engineered, Designed, Optimized, etc.)
+1. Tailor everything to the job description — highlight what is most relevant
+2. Use strong action verbs (Built, Led, Engineered, Designed, Optimized, Delivered)
 3. Keep it concise — aim for 1 page worth of content
 4. Make it ATS-friendly by naturally including keywords from the job description
 5. Only include experiences and projects most relevant to this role
 6. Write a compelling 2-3 sentence professional summary
 
-Return ONLY this JSON structure (no markdown, no extra text):
+Return ONLY this JSON structure — no markdown, no code fences, no extra text, just raw JSON:
 {
   "summary": "2-3 sentence professional summary tailored to the role",
   "experience": [

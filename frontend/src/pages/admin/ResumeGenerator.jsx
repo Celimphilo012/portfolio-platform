@@ -7,6 +7,7 @@ import {
   saveResume,
   getSavedResumes,
   deleteSavedResume,
+  downloadCV,
 } from '../../services/resumeGeneratorService.js';
 
 // ── Styles ──────────────────────────────────────────────────────────────────
@@ -465,6 +466,22 @@ export default function ResumeGenerator() {
     }
   };
 
+  const handleDownloadCV = async () => {
+    try {
+      const res = await downloadCV();
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'cv.pdf');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setError('Failed to generate CV. Make sure you have experience, projects and skills added.');
+    }
+  };
+
   const handleImprove = async () => {
     if (!resume) return;
     setError(null);
@@ -559,6 +576,31 @@ export default function ResumeGenerator() {
           <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>
             Paste a job description and generate a tailored resume from your experience
           </p>
+        </div>
+
+        {/* CV Download Card */}
+        <div
+          style={{
+            ...sectionCard,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
+        >
+          <div>
+            <h2 style={{ color: '#f1f5f9', fontSize: '14px', fontWeight: 600, margin: '0 0 4px' }}>
+              Download Full CV
+            </h2>
+            <p style={{ color: '#64748b', fontSize: '12px', margin: 0 }}>
+              Generates a complete PDF CV from all your portfolio data — experience, projects and
+              skills
+            </p>
+          </div>
+          <button onClick={handleDownloadCV} style={btnPrimary}>
+            ↓ Download CV
+          </button>
         </div>
 
         {/* Job details form */}

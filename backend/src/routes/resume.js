@@ -99,4 +99,28 @@ router.delete('/saved/:id', authenticate, async (req, res, next) => {
   }
 });
 
+router.get('/generate-cv', authenticate, async (req, res, next) => {
+  try {
+    const [experiencesResult, projectsResult, skillsResult, aboutResult] = await Promise.all([
+      db.query('SELECT * FROM experiences ORDER BY start_date DESC'),
+      db.query('SELECT * FROM projects ORDER BY sort_order ASC, created_at DESC'),
+      db.query('SELECT * FROM skills ORDER BY category, sort_order'),
+      db.query('SELECT * FROM about LIMIT 1'),
+    ]);
+
+    const about = aboutResult.rows[0] || {};
+    const experiences = experiencesResult.rows;
+    const projects = projectsResult.rows;
+    const skills = skillsResult.rows;
+
+    const { generateCVPDF } = await import('../services/pdfService.js');
+    const pdfBuffer = await generateCVPDF({ about, experiences, projects, skills });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="cv.pdf"');
+    res.send(pdfBuffer);
+  } catch (err) {
+    next(err);
+  }
+});
 export default router;
