@@ -1,13 +1,23 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
-// ── Helper: wrap text into lines ────────────────────────────────────────────
+function sanitize(text) {
+  if (!text) return '';
+  return text
+    .replace(/[\r\n\t]+/g, ' ')
+    .replace(/[^\x20-\x7E]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function wrapText(text, maxWidth, fontSize, font) {
   if (!text) return [];
-  const words = text.split(' ');
+  const clean = sanitize(text);
+  if (!clean) return [];
+  const words = clean.split(' ');
   const lines = [];
   let current = '';
-
   for (const word of words) {
+    if (!word) continue;
     const test = current ? `${current} ${word}` : word;
     const width = font.widthOfTextAtSize(test, fontSize);
     if (width > maxWidth && current) {
@@ -26,264 +36,173 @@ function formatDate(d) {
   return new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 }
 
-// ── Main CV Generator ────────────────────────────────────────────────────────
 export const generateCVPDF = async ({ about, experiences, projects, skills }) => {
   const doc = await PDFDocument.create();
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const reg = await doc.embedFont(StandardFonts.Helvetica);
+  const ital = await doc.embedFont(StandardFonts.HelveticaOblique);
 
-  // Colors
-  const purple = rgb(0.388, 0.4, 0.945); // #6366f1
-  const dark = rgb(0.1, 0.1, 0.18); // #1a1a2e
-  const gray = rgb(0.39, 0.455, 0.545); // #64748b
-  const lightGray = rgb(0.58, 0.635, 0.705); // #94a3b8
-  const white = rgb(1, 1, 1);
+  const black = rgb(0, 0, 0);
+  const dark = rgb(0.13, 0.13, 0.13);
+  const medGray = rgb(0.35, 0.35, 0.35);
+  const lineColor = rgb(0, 0, 0);
 
-  const margin = 45;
-  const W = 595; // A4 width pt
-  const H = 842; // A4 height pt
+  const margin = 50;
+  const W = 595;
+  const H = 842;
   const contentW = W - margin * 2;
 
-  // ── Add first page ──────────────────────────────────────────────────────
   let page = doc.addPage([W, H]);
   let y = H - margin;
 
-  // Helper to add new page when needed
   const checkPage = (needed = 20) => {
-    if (y - needed < margin) {
+    if (y - needed < margin + 20) {
       page = doc.addPage([W, H]);
       y = H - margin;
     }
   };
 
-  // ── Draw section title ──────────────────────────────────────────────────
+  // ── Section title (bold, underlined with full-width line) ─────────────────
   const drawSectionTitle = (title) => {
-    checkPage(30);
-    y -= 10;
-    page.drawText(title.toUpperCase(), {
-      x: margin,
-      y,
-      size: 8,
-      font: bold,
-      color: purple,
-    });
-    y -= 4;
-    page.drawLine({
-      start: { x: margin, y },
-      end: { x: W - margin, y },
-      thickness: 0.75,
-      color: rgb(0.886, 0.882, 1),
-    });
-    y -= 12;
-  };
-
-  // ── Draw wrapped paragraph ──────────────────────────────────────────────
-  const drawParagraph = (text, { size = 9, font: f = reg, color = dark, indent = 0 } = {}) => {
-    if (!text) return;
-    const lines = wrapText(text, contentW - indent, size, f);
-    for (const line of lines) {
-      checkPage(size + 3);
-      page.drawText(line, { x: margin + indent, y, size, font: f, color });
-      y -= size + 3;
-    }
-  };
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // HEADER
-  // ══════════════════════════════════════════════════════════════════════════
-  const name = about.headline?.split('|')[0]?.trim() || 'Your Name';
-  page.drawText(name, {
-    x: margin,
-    y,
-    size: 22,
-    font: bold,
-    color: dark,
-  });
-  y -= 26;
-
-  if (about.headline) {
-    page.drawText(about.headline, {
-      x: margin,
-      y,
-      size: 11,
-      font: bold,
-      color: purple,
-    });
-    y -= 16;
-  }
-
-  if (about.location) {
-    page.drawText(`Location: ${about.location}`, {
+    checkPage(28);
+    y -= 8;
+    page.drawText(sanitize(title).toUpperCase(), {
       x: margin,
       y,
       size: 9,
-      font: reg,
-      color: gray,
+      font: bold,
+      color: black,
     });
-    y -= 14;
-  }
+    y -= 3;
+    page.drawLine({
+      start: { x: margin, y },
+      end: { x: W - margin, y },
+      thickness: 1,
+      color: black,
+    });
+    y -= 11;
+  };
 
-  // Divider
-  y -= 4;
+  // ── Bullet point line ─────────────────────────────────────────────────────
+  const drawBullet = (text, indent = 14) => {
+    if (!text) return;
+    const maxW = contentW - indent - 8;
+    const lines = wrapText(text, maxW, 9, reg);
+    for (let i = 0; i < lines.length; i++) {
+      checkPage(13);
+      if (i === 0) {
+        // Draw bullet dot
+        page.drawText('-', { x: margin + indent - 8, y, size: 9, font: reg, color: dark });
+      }
+      page.drawText(lines[i], { x: margin + indent, y, size: 9, font: reg, color: dark });
+      y -= 13;
+    }
+  };
+
+  // ── Two-column row (left bold + italic, right plain right-aligned) ─────────
+  const drawItemHeader = (leftBold, leftItal, right, size = 9.5) => {
+    checkPage(16);
+    const s = sanitize(leftBold);
+    const bW = bold.widthOfTextAtSize(s, size);
+    page.drawText(s, { x: margin, y, size, font: bold, color: black });
+    if (leftItal) {
+      const it = sanitize(`, ${leftItal}`);
+      page.drawText(it, { x: margin + bW, y, size, font: ital, color: dark });
+    }
+    if (right) {
+      const r = sanitize(right);
+      const rW = reg.widthOfTextAtSize(r, size - 1);
+      page.drawText(r, { x: W - margin - rW, y, size: size - 1, font: reg, color: dark });
+    }
+    y -= 13;
+  };
+
+  // ── Single line left + right ───────────────────────────────────────────────
+  const drawSubHeader = (left, right, size = 9) => {
+    checkPage(14);
+    if (left) {
+      page.drawText(sanitize(left), { x: margin, y, size, font: ital, color: dark });
+    }
+    if (right) {
+      const r = sanitize(right);
+      const rW = reg.widthOfTextAtSize(r, size);
+      page.drawText(r, { x: W - margin - rW, y, size, font: reg, color: dark });
+    }
+    y -= 13;
+  };
+
+  // ── Wrapped paragraph ─────────────────────────────────────────────────────
+  const drawParagraph = (text, size = 9) => {
+    if (!text) return;
+    const lines = wrapText(text, contentW, size, reg);
+    for (const line of lines) {
+      checkPage(size + 4);
+      page.drawText(line, { x: margin, y, size, font: reg, color: dark });
+      y -= size + 4;
+    }
+  };
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // NAME — centered, large
+  // ════════════════════════════════════════════════════════════════════════════
+  const name = sanitize(about.headline?.split('|')[0]?.trim() || 'Your Name');
+  const nameSize = 20;
+  const nameW = bold.widthOfTextAtSize(name, nameSize);
+  page.drawText(name, {
+    x: (W - nameW) / 2,
+    y,
+    size: nameSize,
+    font: bold,
+    color: black,
+  });
+  y -= 22;
+
+  // Contact line — centered
+  const contactParts = [];
+  if (about.location) contactParts.push(sanitize(about.location));
+  contactParts.push('Portfolio available on request');
+  const contactLine = contactParts.join('  |  ');
+  const contactW = reg.widthOfTextAtSize(contactLine, 8.5);
+  page.drawText(contactLine, {
+    x: (W - contactW) / 2,
+    y,
+    size: 8.5,
+    font: reg,
+    color: medGray,
+  });
+  y -= 10;
+
+  // Full-width divider under header
   page.drawLine({
     start: { x: margin, y },
     end: { x: W - margin, y },
-    thickness: 2,
-    color: purple,
+    thickness: 1.5,
+    color: black,
   });
   y -= 14;
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // BIO
-  // ══════════════════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════════════════════
+  // SUMMARY OF QUALIFICATIONS
+  // ════════════════════════════════════════════════════════════════════════════
   if (about.bio) {
-    // Background rect
-    const bioLines = wrapText(about.bio, contentW - 16, 9, reg);
-    const bioH = bioLines.length * 13 + 14;
-    page.drawRectangle({
-      x: margin,
-      y: y - bioH + 8,
-      width: contentW,
-      height: bioH,
-      color: rgb(0.973, 0.969, 1),
-    });
-    page.drawRectangle({
-      x: margin,
-      y: y - bioH + 8,
-      width: 3,
-      height: bioH,
-      color: purple,
-    });
-    y -= 8;
-    for (const line of bioLines) {
-      page.drawText(line, { x: margin + 10, y, size: 9, font: reg, color: dark });
-      y -= 13;
+    drawSectionTitle('Summary of Qualifications');
+    // Split bio by sentences or newlines into bullet points
+    const sentences = about.bio
+      .split(/(?<=[.!?])\s+|[\n]+/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 10);
+
+    for (const sentence of sentences.slice(0, 4)) {
+      drawBullet(sentence);
     }
-    y -= 10;
+    y -= 4;
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // EXPERIENCE
-  // ══════════════════════════════════════════════════════════════════════════
-  if (experiences.length > 0) {
-    drawSectionTitle('Work Experience');
-
-    for (const exp of experiences) {
-      checkPage(40);
-
-      // Title · Company
-      const titleText = exp.title;
-      const companyText = ` · ${exp.company}`;
-      const titleW = bold.widthOfTextAtSize(titleText, 10.5);
-
-      page.drawText(titleText, {
-        x: margin,
-        y,
-        size: 10.5,
-        font: bold,
-        color: dark,
-      });
-      page.drawText(companyText, {
-        x: margin + titleW,
-        y,
-        size: 10.5,
-        font: reg,
-        color: purple,
-      });
-
-      // Period on right
-      const period = `${formatDate(exp.start_date)} – ${formatDate(exp.end_date)}`;
-      const periodW = reg.widthOfTextAtSize(period, 9);
-      page.drawText(period, {
-        x: W - margin - periodW,
-        y,
-        size: 9,
-        font: reg,
-        color: lightGray,
-      });
-      y -= 14;
-
-      // Description
-      if (exp.description) {
-        drawParagraph(exp.description, { size: 9, color: rgb(0.294, 0.333, 0.388) });
-        y -= 2;
-      }
-
-      // Technologies
-      if (exp.technologies?.length) {
-        const techText = exp.technologies.join('  ·  ');
-        checkPage(14);
-        page.drawText(techText, {
-          x: margin,
-          y,
-          size: 8,
-          font: reg,
-          color: purple,
-        });
-        y -= 14;
-      }
-
-      y -= 6;
-    }
-  }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // PROJECTS
-  // ══════════════════════════════════════════════════════════════════════════
-  if (projects.length > 0) {
-    drawSectionTitle('Projects');
-
-    for (const p of projects.slice(0, 5)) {
-      checkPage(35);
-
-      page.drawText(p.title, {
-        x: margin,
-        y,
-        size: 10.5,
-        font: bold,
-        color: dark,
-      });
-
-      if (p.github_url || p.demo_url) {
-        const link = p.demo_url || p.github_url;
-        const linkW = reg.widthOfTextAtSize(link, 8);
-        page.drawText(link, {
-          x: W - margin - linkW,
-          y,
-          size: 8,
-          font: reg,
-          color: purple,
-        });
-      }
-      y -= 14;
-
-      if (p.description) {
-        drawParagraph(p.description, { size: 9, color: rgb(0.294, 0.333, 0.388) });
-        y -= 2;
-      }
-
-      if (p.technologies?.length) {
-        const techText = p.technologies.join('  ·  ');
-        checkPage(14);
-        page.drawText(techText, {
-          x: margin,
-          y,
-          size: 8,
-          font: reg,
-          color: purple,
-        });
-        y -= 14;
-      }
-
-      y -= 6;
-    }
-  }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // SKILLS
-  // ══════════════════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════════════════════
+  // TECHNICAL SKILLS
+  // ════════════════════════════════════════════════════════════════════════════
   if (skills.length > 0) {
-    drawSectionTitle('Skills');
+    drawSectionTitle('Technical Skills');
 
     const skillGroups = skills.reduce((acc, s) => {
       if (!acc[s.category]) acc[s.category] = [];
@@ -292,44 +211,125 @@ export const generateCVPDF = async ({ about, experiences, projects, skills }) =>
     }, {});
 
     for (const [cat, items] of Object.entries(skillGroups)) {
-      checkPage(16);
-      const catText = `${cat}: `;
+      checkPage(14);
+      const catText = sanitize(`${cat}: `);
+      const itemText = sanitize(items.join(', '));
       const catW = bold.widthOfTextAtSize(catText, 9);
-      page.drawText(catText, {
-        x: margin,
-        y,
-        size: 9,
-        font: bold,
-        color: dark,
-      });
-      page.drawText(items.join(', '), {
-        x: margin + catW,
-        y,
-        size: 9,
-        font: reg,
-        color: rgb(0.294, 0.333, 0.388),
-      });
-      y -= 14;
+
+      page.drawText(catText, { x: margin, y, size: 9, font: bold, color: black });
+
+      // Wrap if too long
+      const maxItemW = contentW - catW;
+      if (reg.widthOfTextAtSize(itemText, 9) <= maxItemW) {
+        page.drawText(itemText, { x: margin + catW, y, size: 9, font: reg, color: dark });
+        y -= 13;
+      } else {
+        y -= 13;
+        const wrapped = wrapText(itemText, contentW - catW - 4, 9, reg);
+        for (const line of wrapped) {
+          checkPage(13);
+          page.drawText(line, { x: margin + catW, y, size: 9, font: reg, color: dark });
+          y -= 13;
+        }
+      }
+    }
+    y -= 4;
+  }
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // RELEVANT EXPERIENCE
+  // ════════════════════════════════════════════════════════════════════════════
+  if (experiences.length > 0) {
+    drawSectionTitle('Relevant Experience');
+
+    for (const exp of experiences) {
+      checkPage(50);
+
+      // Company name bold | Location/period right
+      const period = `${formatDate(exp.start_date)} - ${formatDate(exp.end_date)}`;
+      drawItemHeader(exp.company, null, period, 9.5);
+
+      // Job title italic | (empty right)
+      drawSubHeader(exp.title, null, 9);
+
+      // Description as bullet points
+      if (exp.description) {
+        const bullets = exp.description
+          .split(/(?<=[.!?])\s+|[\n]+/)
+          .map((s) => s.trim())
+          .filter((s) => s.length > 5);
+
+        if (bullets.length > 1) {
+          for (const bullet of bullets.slice(0, 4)) {
+            drawBullet(bullet);
+          }
+        } else {
+          drawBullet(exp.description);
+        }
+      }
+
+      // Technologies as a bullet
+      if (exp.technologies?.length) {
+        drawBullet(`Technologies: ${exp.technologies.join(', ')}`);
+      }
+
+      y -= 6;
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════════════════════
+  // PROJECT EXPERIENCE
+  // ════════════════════════════════════════════════════════════════════════════
+  if (projects.length > 0) {
+    drawSectionTitle('Project Experience');
+
+    for (const p of projects.slice(0, 5)) {
+      checkPage(45);
+
+      // Project name | link right
+      const link = p.demo_url || p.github_url || '';
+      drawItemHeader(p.title, null, sanitize(link), 9.5);
+
+      // Description as bullets
+      if (p.description) {
+        const bullets = p.description
+          .split(/(?<=[.!?])\s+|[\n]+/)
+          .map((s) => s.trim())
+          .filter((s) => s.length > 5);
+
+        if (bullets.length > 1) {
+          for (const bullet of bullets.slice(0, 3)) {
+            drawBullet(bullet);
+          }
+        } else {
+          drawBullet(p.description);
+        }
+      }
+
+      // Technologies
+      if (p.technologies?.length) {
+        drawBullet(`Built with: ${p.technologies.join(', ')}`);
+      }
+
+      y -= 6;
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════════════════
   // FOOTER
-  // ══════════════════════════════════════════════════════════════════════════
-  const footerText = `Generated ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
+  // ════════════════════════════════════════════════════════════════════════════
+  const allPages = doc.getPages();
+  const lastPage = allPages[allPages.length - 1];
+  const footerText = sanitize(
+    `Generated ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
+  );
   const footerW = reg.widthOfTextAtSize(footerText, 8);
-  page.drawLine({
-    start: { x: margin, y: margin + 16 },
-    end: { x: W - margin, y: margin + 16 },
-    thickness: 0.5,
-    color: rgb(0.886, 0.882, 1),
-  });
-  page.drawText(footerText, {
+  lastPage.drawText(footerText, {
     x: (W - footerW) / 2,
-    y: margin + 6,
+    y: 28,
     size: 8,
     font: reg,
-    color: lightGray,
+    color: rgb(0.6, 0.6, 0.6),
   });
 
   const pdfBytes = await doc.save();
